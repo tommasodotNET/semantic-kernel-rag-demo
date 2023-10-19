@@ -1,6 +1,5 @@
 using System.Text;
 using Dapr.Client;
-using KnowledgeBase.Frontend.Services;
 using KnowledgeBase.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
