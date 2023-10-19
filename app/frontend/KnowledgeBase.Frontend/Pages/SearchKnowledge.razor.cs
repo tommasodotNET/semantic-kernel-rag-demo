@@ -18,7 +18,7 @@ public class SearchKnowledgeBase : ComponentBase
         ShowSpinner();
 
         var data = new SearchKnowledge { Prompt = SearchString };
-        var result = await daprClient.InvokeMethodAsync<SearchKnowledge, string>(HttpMethod.Post, "searchknowledge", "api/searchknowldge", data);
+        var result = await daprClient.InvokeMethodAsync<SearchKnowledge, string>(HttpMethod.Post, "search-knowledge", "api/searchknowldge", data);
 
         response = result;
 
