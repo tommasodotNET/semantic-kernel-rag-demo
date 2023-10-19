@@ -20,10 +20,11 @@ app.UseEndpoints(endpoints => endpoints.MapSubscribeHandler());
 
 app.MapGet("/probe", () => new OkResult());
 
-app.MapPost("/documentprocess", [Topic("skcodemotion2023queue", "knowledgeprocess")] async (IFormRecognizerManager formRecognizerManager, DaprClient daprClient, DocumentProcessing documentProcessing) =>
+app.MapPost("/documentprocess", [Topic("skcodemotion2023queue", "documentprocess")] async (IFormRecognizerManager formRecognizerManager, DaprClient daprClient, DocumentProcessing documentProcessing) =>
 {
-    Console.WriteLine($"Processing document {documentProcessing.BlobName}");
-    var forms = await formRecognizerManager.GetFormsFromPdfAsync(documentProcessing.BlobUri);
+    var blobUri = new Uri(documentProcessing.BlobUri);
+    Console.WriteLine($"Processing document {documentProcessing.BlobName} and URI {blobUri}");
+    var forms = await formRecognizerManager.GetFormsFromPdfAsync(blobUri);
 
     foreach(var form in forms)
     {

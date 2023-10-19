@@ -46,7 +46,7 @@ public class UploadFileBase : ComponentBase, IAsyncDisposable
             {
                 await BlobStorageManager.UploadFileAsync(file);
                 var fileName = Path.GetFileNameWithoutExtension(file.Name);
-                await daprClient.PublishEventAsync("skcodemotion2023queue", "knowledgeprocess", new DocumentProcessing { BlobName = fileName, BlobUri = new Uri($"{storageAccountEndpoint}/{fileName}") });
+                await daprClient.PublishEventAsync("skcodemotion2023queue", "knowledgeprocess", new DocumentProcessing { BlobName = fileName, BlobUri = $"{storageAccountEndpoint}/{fileName}" });
             }
         }
         catch(Exception ex)

@@ -67,6 +67,33 @@ a, .btn-link {
         content: "An error has occurred."
     }
 
+.spinner {
+    animation: spin 700ms linear infinite;
+    /*animation-play-state: inherit;*/
+    border: solid 16px silver;
+    border-top: 16px solid #337AB7;
+    /*border-bottom-color: #1c87c9;*/
+    border-radius: 50%;
+    /*content: "";*/
+    height: 80px;
+    position: absolute;
+    top: 40%;
+    left: 55%;
+    /*transform: translate3d(-50%, -50%, 0);*/
+    width: 80px;
+    /*will-change: transform;*/
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg)
+    }
+
+    100% {
+        transform: rotate(360deg)
+    }
+}
+
 .drop-zone {
     padding: 20px;
     width: 100%;

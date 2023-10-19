@@ -3,5 +3,5 @@
 public class DocumentProcessing
 {
     public string BlobName { get; set; }
-    public Uri BlobUri { get; set; }
+    public string BlobUri { get; set; }
 }

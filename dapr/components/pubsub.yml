@@ -3,7 +3,7 @@ apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
   name: skcodemotion2023queue
-  namespace: skcodemotion2023
+  namespace: codemotion2023
 spec:
   type: pubsub.azure.servicebus
   version: v1

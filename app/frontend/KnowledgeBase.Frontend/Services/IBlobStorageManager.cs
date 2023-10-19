@@ -1,6 +1,7 @@
 using System.Text;
 using Dapr.Client;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Storage;
 using Microsoft.Azure.Storage.Auth;
 using Microsoft.Azure.Storage.Blob;
@@ -24,7 +25,7 @@ public class BlobStorageManager : IBlobStorageManager
     private readonly CloudBlobClient _blobClient;
     private readonly string _defaultContainerName;
 
-    public BlobStorageManager(DaprClient daprClient)
+    public BlobStorageManager([FromServices]DaprClient daprClient)
     {
         var storageAccount = daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountEndpoint").GetAwaiter().GetResult().Values.FirstOrDefault();
         var storageKey = daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountKey").GetAwaiter().GetResult().Values.FirstOrDefault();

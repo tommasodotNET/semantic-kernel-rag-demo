@@ -5,42 +5,20 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "PowerShell",
-            "request": "launch",
-            "name": "PowerShell Launch (current file)",
-            "script": "${file}",
-            "args": [],
-            "cwd": "${file}"
-        },
-        {
-            "name": "Frontend: Blazor client",
+            "name": "Backend: Document Processing with Kubernetes",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/app/frontend/bin/Debug/net7.0/ClientApp.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}",
-            "stopAtEntry": false,
-            "serverReadyAction": {
-                "action": "openExternally",
-                "pattern": "\\bNow listening on:\\s+(https?://\\S+)"
-            },
-            "env": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
-            },
-            "envFile": "${input:dotEnvFilePath}"
-        },
-        {
-            "name": "Backend: Minimal API",
-            "type": "coreclr",
-            "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/app/backend/bin/Debug/net7.0/MinimalApi.dll",
+            "preLaunchTask": "bridge-to-kubernetes.compound",
+            "program": "${workspaceFolder}/app/backend/KnowledgeBase.DocumentProcessing/bin/Debug/net7.0/KnowledgeBase.DocumentProcessing.dll",
             "args": [],
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
             "console": "internalConsole",
-            "envFile": "${input:dotEnvFilePath}"
+            "envFile": "${input:dotEnvFilePath}",
+            "env": {
+                "GRPC_DNS_RESOLVER": "native",
+                "ASPNETCORE_URLS": "http://+:5002"
+            }
         }
     ],
     "inputs": [

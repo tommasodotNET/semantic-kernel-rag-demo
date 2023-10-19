@@ -2,42 +2,34 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build backend",
+            "label": "build document processing",
             "type": "shell",
             "command": "dotnet",
             "args": [
                 "build",
-                "${workspaceFolder}/app/backend"
+                "${workspaceFolder}/app/backend/KnowledgeBase.DocumentProcessing/KnowledgeBase.DocumentProcessing.csproj"
             ]
         },
         {
-            "label": "build frontend",
-            "type": "shell",
-            "command": "dotnet",
-            "args": [
-                "build",
-                "${workspaceFolder}/app/frontend"
-            ]
+            "label": "bridge-to-kubernetes.resource",
+            "type": "bridge-to-kubernetes.resource",
+            "resource": "document-processing-dapr",
+            "resourceType": "service",
+            "ports": [
+                5002
+            ],
+            "targetCluster": "aks-skcodemotion2023",
+            "targetNamespace": "codemotion2023",
+            "useKubernetesServiceEnvironmentVariables": false
         },
         {
-            "label": "map env vars",
-            "type": "shell",
-            "command": "${workspaceFolder}/app/map-env.sh",
-            "windows": {
-                "command": "pwsh ${workspaceFolder}/app/map-env.ps1"
-            },
-            "presentation": {
-                "reveal": "silent"
-            },
-            "options": {
-                "cwd": "${workspaceFolder}/app"
-            },
-            "problemMatcher": []
-        },
-        {
-            "label": "build",
-            "dependsOn": ["map env vars", "build backend", "build frontend"]
-        },
+            "label": "bridge-to-kubernetes.compound",
+            "dependsOn": [
+                "bridge-to-kubernetes.resource",
+                "build document processing"
+            ],
+            "dependsOrder": "sequence"
+        }
     ],
     "inputs": [
         {

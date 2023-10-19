@@ -25,6 +25,10 @@ app.MapPost("/api/searchknowldge", async (DaprClient daprClient, SearchKnowledge
     var azureSearchKeyIndex = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureSearchIndex")).Values.FirstOrDefault();
 
     var semanticKernel = Kernel.Builder
+        .WithAzureTextCompletionService(
+            "text-davinci-003",
+            azureOpenAIserviceEndpoint,
+            azureOpenAIServiceKey)
         .WithAzureTextEmbeddingGenerationService(
             "text-embedding-ada-002",
             azureOpenAIserviceEndpoint,
@@ -41,10 +45,10 @@ app.MapPost("/api/searchknowldge", async (DaprClient daprClient, SearchKnowledge
         // var result = await _openAIManager.GetAnswerToQuestionAsync(relatedMemory, prompt);
 
         var queryFunction = semanticKernel.CreateSemanticFunction(@"
-        Considera solo le informazioni provenienti da questo contesto:
+        Consider only the following memories:
         {{$input}}
         Q:{{$prompt}}.
-        Se non sai la risposta dì Non lo so. Rispondi brevemente in italiano. A:.", maxTokens: 800, temperature: 0.7, topP: 0.95);
+        If you don't know the answer just say I don'tknow. Answer briefly. A:.", maxTokens: 800, temperature: 0.7, topP: 0.95);
 
         var contextVariables = new ContextVariables();
         contextVariables.Set("input", relatedMemory);
@@ -53,7 +57,9 @@ app.MapPost("/api/searchknowldge", async (DaprClient daprClient, SearchKnowledge
 
         var result = await queryFunction.InvokeAsync(myContext);
 
-        return result.Result ?? "Non ho trovato la risposta";
+        var answer = new SearchKnowledgeAnswer { Answer = result.Result ?? "I didn't find an answer." };
+
+        return answer;
 });
 
 app.Run();
