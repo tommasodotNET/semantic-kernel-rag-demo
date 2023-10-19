@@ -1,0 +1,29 @@
+﻿@page "/queryfiles"
+
+@inherits SearchKnowledgeBase
+
+<h1>Query Files</h1>
+
+<label>Type in your query to search in all the documents you have uploaded.</label>
+<br />
+<br />
+<div style="padding-right: 25em;">
+    <input class="input queryinput" 
+        type="text"
+        @bind-value="SearchString"
+        @onkeyup="@Enter" />
+</div>
+<br />
+<button class="button querybutton" @onclick="Search" >Search</button>
+
+<br />
+<br />
+
+<div>
+    @((MarkupString)response)
+</div>
+
+@if (isVisible)
+{
+    <div class="spinner"></div>
+}

@@ -1,0 +1,41 @@
+@page "/uploadfiles"
+
+@inherits UploadFileBase
+
+<div>
+    <span style="float:left">
+        <h1>Carica nuovi files</h1>
+    </span>
+</div>
+<br />
+<br />
+<br />
+
+<div @ref="dropZoneElement" class="drop-zone">
+    <p>Drop a file or paste a file from the clipboard or select a file using the input</p>
+    <InputFile OnChange="@LoadFiles" @ref="inputFile" multiple />
+</div>
+
+<br />
+
+@if (uploadResult == 1)
+{
+    <div class="container">
+        <div class="alert alert-success">
+            <strong>Successo!</strong> I files sono stati caricati correttamente.
+        </div>
+    </div>
+}
+else if(uploadResult == 0)
+{
+    <div class="container">
+        <div class="alert alert-danger">
+            <strong>Errore!</strong> Errore durante il caricamento dei files.
+        </div>
+    </div>
+}
+
+@if (isVisible)
+{
+    <div class="spinner"></div>
+}

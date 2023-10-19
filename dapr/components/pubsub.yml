@@ -1,0 +1,16 @@
+
+apiVersion: dapr.io/v1alpha1
+kind: Component
+metadata:
+  name: skcodemotion2023queue
+  namespace: skcodemotion2023
+spec:
+  type: pubsub.azure.servicebus
+  version: v1
+  metadata:
+  - name: connectionString # Required
+    secretKeyRef:
+      name: sb-processing-connectionstring
+      key:  sb-processing-connectionstring
+auth:
+  secretStore: skcodemotion2023akv
