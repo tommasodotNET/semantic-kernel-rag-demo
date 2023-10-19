@@ -1,8 +1,11 @@
+using System.Text;
 using Dapr.Client;
 using KnowledgeBase.Frontend.Services;
 using KnowledgeBase.Shared;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Microsoft.Azure.Storage;
+using Microsoft.Azure.Storage.Auth;
 using Microsoft.Azure.Storage.Blob;
 using Microsoft.JSInterop;
 
@@ -10,7 +13,6 @@ namespace KnowledgeBase.Frontend;
 
 public class UploadFileBase : ComponentBase, IAsyncDisposable
 {
-    [Inject] private IBlobStorageManager BlobStorageManager { get; set; }
     [Inject] private IJSRuntime JSRuntime { get; set; }
     [Inject] private DaprClient daprClient { get; set; }
 
@@ -44,7 +46,7 @@ public class UploadFileBase : ComponentBase, IAsyncDisposable
             var storageAccountEndpoint = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountEndpoint")).Values.FirstOrDefault();
             foreach (var file in e.GetMultipleFiles())
             {
-                await BlobStorageManager.UploadFileAsync(file);
+                await UploadFileAsync(file);
                 var fileName = Path.GetFileNameWithoutExtension(file.Name);
                 await daprClient.PublishEventAsync("skcodemotion2023queue", "knowledgeprocess", new DocumentProcessing { BlobName = fileName, BlobUri = $"{storageAccountEndpoint}/{fileName}" });
             }
@@ -73,6 +75,44 @@ public class UploadFileBase : ComponentBase, IAsyncDisposable
         {
             await _module.DisposeAsync();
         }
+    }
+
+    private async Task UploadFileAsync(IBrowserFile file, string containerName = "")
+    {
+        var storageAccountEnpoint = daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountEndpoint").GetAwaiter().GetResult().Values.FirstOrDefault();
+        var storageKey = daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountKey").GetAwaiter().GetResult().Values.FirstOrDefault();
+        var storageCredentials = new StorageCredentials(storageAccountEnpoint, storageKey);
+        
+        var defaultContainerName = daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageContainer").GetAwaiter().GetResult().Values.FirstOrDefault();
+
+        var storageAccount = new CloudStorageAccount(storageCredentials, useHttps: true);
+        var blobClient = storageAccount.CreateCloudBlobClient();
+
+        var blockIds = new List<string>();
+        var blockNumber = 0;
+        var bufferSize = 4 * 1024 * 1024;
+        var buffer = new byte[bufferSize]; // 4 MB buffer
+        int bytesRead;
+
+        var container = blobClient.GetContainerReference(defaultContainerName);
+        await container.CreateIfNotExistsAsync();
+
+        var blobFile = container.GetBlockBlobReference(Path.GetFileNameWithoutExtension(file.Name));
+        using (var stream = file.OpenReadStream(15 * 1024 * 1024))
+        {
+            do
+            {
+                bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                if (bytesRead > 0)
+                {
+                    var blockId = Convert.ToBase64String(Encoding.UTF8.GetBytes(blockNumber.ToString("d6")));
+                    await blobFile.PutBlockAsync(blockId, new MemoryStream(buffer, 0, bytesRead), null);
+                    blockIds.Add(blockId);
+                    blockNumber++;
+                }
+            } while (bytesRead > 0);
+        }
+        await blobFile.PutBlockListAsync(blockIds);
     }
 
     protected void ShowSpinner()
