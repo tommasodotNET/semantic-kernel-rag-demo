@@ -77,7 +77,7 @@ public class UploadFileBase : ComponentBase, IAsyncDisposable
         }
     }
 
-    private async Task UploadFileAsync(IBrowserFile file, string containerName = "")
+    private async Task UploadFileAsync(IBrowserFile file)
     {
         var storageAccountEnpoint = daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountEndpoint").GetAwaiter().GetResult().Values.FirstOrDefault();
         var storageKey = daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountKey").GetAwaiter().GetResult().Values.FirstOrDefault();
