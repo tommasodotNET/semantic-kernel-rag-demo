@@ -42,8 +42,6 @@ app.MapPost("/api/searchknowldge", async (DaprClient daprClient, SearchKnowledge
 
         var relatedMemory = (await memories.FirstOrDefaultAsync())?.Metadata.Text ?? "I know nothing.";
 
-        // var result = await _openAIManager.GetAnswerToQuestionAsync(relatedMemory, prompt);
-
         var queryFunction = semanticKernel.CreateSemanticFunction(@"
         Consider only the following memories:
         {{$input}}

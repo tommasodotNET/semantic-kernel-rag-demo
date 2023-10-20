@@ -11,6 +11,15 @@
             ]
         },
         {
+            "label": "build frontend",
+            "type": "shell",
+            "command": "dotnet",
+            "args": [
+                "build",
+                "${workspaceFolder}/app/frontend/KnowledgeBase.Frontend/KnowledgeBase.Frontend.csproj"
+            ]
+        },
+        {
             "label": "bridge-to-kubernetes.resource",
             "type": "bridge-to-kubernetes.resource",
             "resource": "document-processing-dapr",
@@ -23,9 +32,29 @@
             "useKubernetesServiceEnvironmentVariables": false
         },
         {
+            "label": "frontend-bridge-to-kubernetes.resource",
+            "type": "bridge-to-kubernetes.resource",
+            "resource": "frontend-dapr",
+            "resourceType": "service",
+            "ports": [
+                5002
+            ],
+            "targetCluster": "aks-skcodemotion2023",
+            "targetNamespace": "codemotion2023",
+            "useKubernetesServiceEnvironmentVariables": false
+        },
+        {
             "label": "bridge-to-kubernetes.compound",
             "dependsOn": [
                 "bridge-to-kubernetes.resource",
+                "build document processing"
+            ],
+            "dependsOrder": "sequence"
+        },
+        {
+            "label": "frontend-bridge-to-kubernetes.compound",
+            "dependsOn": [
+                "frontend-bridge-to-kubernetes.resource",
                 "build document processing"
             ],
             "dependsOrder": "sequence"

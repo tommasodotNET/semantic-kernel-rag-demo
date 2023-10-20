@@ -19,6 +19,22 @@
                 "GRPC_DNS_RESOLVER": "native",
                 "ASPNETCORE_URLS": "http://+:5002"
             }
+        },
+        {
+            "name": "Frontend: with Kubernetes",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "frontend-bridge-to-kubernetes.compound",
+            "program": "${workspaceFolder}/app/frontend/KnowledgeBase.Frontend/bin/Debug/net7.0/KnowledgeBase.Frontend.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}",
+            "stopAtEntry": false,
+            "console": "internalConsole",
+            "envFile": "${input:dotEnvFilePath}",
+            "env": {
+                "GRPC_DNS_RESOLVER": "native",
+                "ASPNETCORE_URLS": "http://+:5002"
+            }
         }
     ],
     "inputs": [

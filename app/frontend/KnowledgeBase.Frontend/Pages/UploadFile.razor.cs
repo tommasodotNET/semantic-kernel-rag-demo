@@ -10,7 +10,7 @@ using Microsoft.JSInterop;
 
 namespace KnowledgeBase.Frontend;
 
-public class UploadFileBase : ComponentBase, IAsyncDisposable
+public class UploadFileBase : ComponentBase
 {
     [Inject] private IJSRuntime JSRuntime { get; set; }
     [Inject] private DaprClient daprClient { get; set; }
@@ -43,11 +43,11 @@ public class UploadFileBase : ComponentBase, IAsyncDisposable
         try
         {
             var storageAccountEndpoint = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountEndpoint")).Values.FirstOrDefault();
+            var storageAccountContainer = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageContainer")).Values.FirstOrDefault();
             foreach (var file in e.GetMultipleFiles())
             {
                 await UploadFileAsync(file);
-                var fileName = Path.GetFileNameWithoutExtension(file.Name);
-                await daprClient.PublishEventAsync("skcodemotion2023queue", "knowledgeprocess", new DocumentProcessing { BlobName = fileName, BlobUri = $"{storageAccountEndpoint}/{fileName}" });
+                await daprClient.PublishEventAsync("skcodemotion2023queue", "documentprocess", new DocumentProcessing { BlobName = file.Name, BlobUri = $"{storageAccountEndpoint}/{storageAccountContainer}/{file.Name}" });
             }
         }
         catch(Exception ex)
@@ -55,10 +55,13 @@ public class UploadFileBase : ComponentBase, IAsyncDisposable
             Console.WriteLine($"Error uploading file: {ex.Message}");
             uploadResult = 0;
         }
+        finally
+        {
+            uploadResult = 1;
+        }
 
         HideSpinner();
 
-        uploadResult = 1;
         StateHasChanged();
     }
 
@@ -78,40 +81,26 @@ public class UploadFileBase : ComponentBase, IAsyncDisposable
 
     private async Task UploadFileAsync(IBrowserFile file)
     {
-        var storageAccountEnpoint = daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountEndpoint").GetAwaiter().GetResult().Values.FirstOrDefault();
-        var storageKey = daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountKey").GetAwaiter().GetResult().Values.FirstOrDefault();
-        var storageCredentials = new StorageCredentials(storageAccountEnpoint, storageKey);
+        Console.WriteLine($"Prepraring to upload file {file.Name}...");
+        var storageAccountEndpoint = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccount")).Values.FirstOrDefault();
+        var storageKey = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountKey")).Values.FirstOrDefault();
+        var storageCredentials = new StorageCredentials(storageAccountEndpoint, storageKey);
         
-        var defaultContainerName = daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageContainer").GetAwaiter().GetResult().Values.FirstOrDefault();
+        var defaultContainerName = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageContainer")).Values.FirstOrDefault();
 
         var storageAccount = new CloudStorageAccount(storageCredentials, useHttps: true);
         var blobClient = storageAccount.CreateCloudBlobClient();
+        
+        CloudBlobContainer container = blobClient.GetContainerReference(defaultContainerName);
 
-        var blockIds = new List<string>();
-        var blockNumber = 0;
-        var bufferSize = 4 * 1024 * 1024;
-        var buffer = new byte[bufferSize]; // 4 MB buffer
-        int bytesRead;
+        CloudBlockBlob blockBlob = container.GetBlockBlobReference(file.Name);
 
-        var container = blobClient.GetContainerReference(defaultContainerName);
-        await container.CreateIfNotExistsAsync();
-
-        var blobFile = container.GetBlockBlobReference(Path.GetFileNameWithoutExtension(file.Name));
-        using (var stream = file.OpenReadStream(15 * 1024 * 1024))
+        using (var fileStream = file.OpenReadStream())
         {
-            do
-            {
-                bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
-                if (bytesRead > 0)
-                {
-                    var blockId = Convert.ToBase64String(Encoding.UTF8.GetBytes(blockNumber.ToString("d6")));
-                    await blobFile.PutBlockAsync(blockId, new MemoryStream(buffer, 0, bytesRead), null);
-                    blockIds.Add(blockId);
-                    blockNumber++;
-                }
-            } while (bytesRead > 0);
+            Console.WriteLine($"Uploading file {file.Name}...");
+            blockBlob.Properties.ContentType = file.ContentType;
+            await blockBlob.UploadFromStreamAsync(fileStream);
         }
-        await blobFile.PutBlockListAsync(blockIds);
     }
 
     protected void ShowSpinner()

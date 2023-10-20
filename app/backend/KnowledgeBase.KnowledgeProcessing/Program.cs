@@ -36,7 +36,7 @@ app.MapPost("/knowledgeprocess", [Topic("skcodemotion2023queue", "knowledgeproce
             azureSearchKey))
         .Build();
 
-    semanticKernel.Memory.SaveInformationAsync(azureSearchKeyIndex, knowledgeProcessing.DocumentFrame, $"{knowledgeProcessing.BlobName}-{knowledgeProcessing.PageNumber}").Wait();
+    await semanticKernel.Memory.SaveInformationAsync(azureSearchKeyIndex, knowledgeProcessing.DocumentFrame, $"{knowledgeProcessing.BlobName}-{knowledgeProcessing.PageNumber}");
 
     return new OkResult();
 });
