@@ -49,15 +49,12 @@ public class UploadFileBase : ComponentBase
                 await UploadFileAsync(file);
                 await daprClient.PublishEventAsync("skcodemotion2023queue", "documentprocess", new DocumentProcessing { BlobName = file.Name, BlobUri = $"{storageAccountEndpoint}/{storageAccountContainer}/{file.Name}" });
             }
+            uploadResult = 1;
         }
         catch(Exception ex)
         {
             Console.WriteLine($"Error uploading file: {ex.Message}");
             uploadResult = 0;
-        }
-        finally
-        {
-            uploadResult = 1;
         }
 
         HideSpinner();
