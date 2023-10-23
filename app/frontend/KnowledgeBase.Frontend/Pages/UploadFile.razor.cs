@@ -92,12 +92,34 @@ public class UploadFileBase : ComponentBase
 
         CloudBlockBlob blockBlob = container.GetBlockBlobReference(file.Name);
 
-        using (var fileStream = file.OpenReadStream())
+        var blockIds = new List<string>();
+        var blockNumber = 0;
+        var bufferSize = 4 * 1024 * 1024;
+        var buffer = new byte[bufferSize]; // 4 MB buffer
+        int bytesRead;
+
+        using (var stream = file.OpenReadStream(15 * 1024 * 1024))
         {
-            Console.WriteLine($"Uploading file {file.Name}...");
-            blockBlob.Properties.ContentType = file.ContentType;
-            await blockBlob.UploadFromStreamAsync(fileStream);
+            do
+            {
+                bytesRead = await stream.ReadAsync(buffer, 0, buffer.Length);
+                if (bytesRead > 0)
+                {
+                    var blockId = Convert.ToBase64String(Encoding.UTF8.GetBytes(blockNumber.ToString("d6")));
+                    await blockBlob.PutBlockAsync(blockId, new MemoryStream(buffer, 0, bytesRead), null);
+                    blockIds.Add(blockId);
+                    blockNumber++;
+                }
+            } while (bytesRead > 0);
         }
+        await blockBlob.PutBlockListAsync(blockIds);
+
+        // using (var fileStream = file.OpenReadStream())
+        // {
+        //     Console.WriteLine($"Uploading file {file.Name}...");
+        //     blockBlob.Properties.ContentType = file.ContentType;
+        //     await blockBlob.UploadFromStreamAsync(fileStream);
+        // }
     }
 
     protected void ShowSpinner()
