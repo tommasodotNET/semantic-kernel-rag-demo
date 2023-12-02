@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Azure.Identity" Version="1.10.4" />
     <PackageReference Include="Dapr.AspNetCore" Version="1.12.0" />
     <PackageReference Include="Dapr.Client" Version="1.12.0" />
     <PackageReference Include="Microsoft.SemanticKernel" Version="0.17.230718.1-preview" />
