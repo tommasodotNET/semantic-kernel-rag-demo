@@ -5,7 +5,7 @@
 replicaCount: 1
 
 image:
-  repository: crskcodemotion2023.azurecr.io/knowledge-base-frontend
+  repository: crskragdemo.azurecr.io/frontend
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
   tag: latest
