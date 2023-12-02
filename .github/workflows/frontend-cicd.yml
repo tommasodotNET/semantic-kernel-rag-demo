@@ -5,14 +5,15 @@ on:
     branches: 
       [ main ]
     paths:
-      - "src/frontend/KnowledgeBase.Frontend/**"
-      - "src/frontend/knowledgebasefrontendchart/**"
+      - "app/frontend/KnowledgeBase.Frontend/**"
+      - "app/frontend/knowledgebasefrontendchart/**"
 
   workflow_dispatch:
 
 env:
   AKS_NAMESPACE: sk-rag-demo
-  SERVICE_NAME: knowledgebasefrontend
+  SERVICE_NAME: frontend
+  SERVICE_PATH: frontend
 
 jobs:
   build:
@@ -33,8 +34,9 @@ jobs:
 
       - name: Build image
         run: |
-          cd ./src
-          docker build -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.SERVICE_NAME }}:latest -f ./${{ env.SERVICE_NAME }}/*/Dockerfile .
+          cd ${{ env.SERVICE_PATH }}
+          docker build -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.SERVICE_NAME }}:latest -f ./${{ env.SERVICE_PATH }}/*/Dockerfile .
+      
       - name: Push image to Azure Container Registry
         run: |
           docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.SERVICE_NAME }}:latest
@@ -58,8 +60,8 @@ jobs:
 
       - name: Deploy Helm Chart
         run: |
-          cd ./src
-          helm upgrade --install ${{ env.SERVICE_NAME }}-chart ./${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}chart --namespace ${{ env.AKS_NAMESPACE }}
+          cd ./app
+          helm upgrade --install ${{ env.SERVICE_NAME }}chart ./${{ env.SERVICE_PATH }}/${{ env.SERVICE_NAME }}chart --namespace ${{ env.AKS_NAMESPACE }}
 
       - name: Update Deployment
         run: |
