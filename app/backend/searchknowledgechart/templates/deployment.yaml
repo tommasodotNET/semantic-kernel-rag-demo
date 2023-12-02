@@ -33,6 +33,9 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: AZURE_CLIENT_ID
+            value: d53cfbc6-6de7-43a1-a247-4bff27284a40
           ports:
             - name: http
               containerPort: 80
