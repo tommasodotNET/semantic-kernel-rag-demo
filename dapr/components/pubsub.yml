@@ -2,8 +2,8 @@
 apiVersion: dapr.io/v1alpha1
 kind: Component
 metadata:
-  name: skcodemotion2023queue
-  namespace: codemotion2023
+  name: skragdemoqueue
+  namespace: sk-rag-demo
 spec:
   type: pubsub.azure.servicebus
   version: v1
@@ -13,4 +13,4 @@ spec:
       name: ServiceBusConnectionString
       key:  ServiceBusConnectionString
 auth:
-  secretStore: skcodemotion2023akv
+  secretStore: skragdemoakv
