@@ -42,12 +42,12 @@ public class UploadFileBase : ComponentBase
 
         try
         {
-            var storageAccountEndpoint = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountEndpoint")).Values.FirstOrDefault();
-            var storageAccountContainer = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageContainer")).Values.FirstOrDefault();
+            var storageAccountEndpoint = (await daprClient.GetSecretAsync("skragdemoakv", "AzureStorageAccountEndpoint")).Values.FirstOrDefault();
+            var storageAccountContainer = (await daprClient.GetSecretAsync("skragdemoakv", "AzureStorageContainer")).Values.FirstOrDefault();
             foreach (var file in e.GetMultipleFiles())
             {
                 await UploadFileAsync(file);
-                await daprClient.PublishEventAsync("skcodemotion2023queue", "documentprocess", new DocumentProcessing { BlobName = file.Name, BlobUri = $"{storageAccountEndpoint}/{storageAccountContainer}/{file.Name}" });
+                await daprClient.PublishEventAsync("skragdemoqueue", "documentprocess", new DocumentProcessing { BlobName = file.Name, BlobUri = $"{storageAccountEndpoint}/{storageAccountContainer}/{file.Name}" });
             }
             uploadResult = 1;
         }
@@ -79,11 +79,11 @@ public class UploadFileBase : ComponentBase
     private async Task UploadFileAsync(IBrowserFile file)
     {
         Console.WriteLine($"Prepraring to upload file {file.Name}...");
-        var storageAccountEndpoint = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccount")).Values.FirstOrDefault();
-        var storageKey = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageAccountKey")).Values.FirstOrDefault();
+        var storageAccountEndpoint = (await daprClient.GetSecretAsync("skragdemoakv", "AzureStorageAccount")).Values.FirstOrDefault();
+        var storageKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureStorageAccountKey")).Values.FirstOrDefault();
         var storageCredentials = new StorageCredentials(storageAccountEndpoint, storageKey);
         
-        var defaultContainerName = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureStorageContainer")).Values.FirstOrDefault();
+        var defaultContainerName = (await daprClient.GetSecretAsync("skragdemoakv", "AzureStorageContainer")).Values.FirstOrDefault();
 
         var storageAccount = new CloudStorageAccount(storageCredentials, useHttps: true);
         var blobClient = storageAccount.CreateCloudBlobClient();

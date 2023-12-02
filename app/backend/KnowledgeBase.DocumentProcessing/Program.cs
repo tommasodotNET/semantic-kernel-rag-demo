@@ -20,8 +20,9 @@ app.UseEndpoints(endpoints => endpoints.MapSubscribeHandler());
 
 app.MapGet("/probe", () => new OkResult());
 
-app.MapPost("/documentprocess", [Topic("skcodemotion2023queue", "documentprocess")] async (IFormRecognizerManager formRecognizerManager, DaprClient daprClient, DocumentProcessing documentProcessing) =>
+app.MapPost("/documentprocess", [Topic("skragdemoqueue", "documentprocess")] async (IFormRecognizerManager formRecognizerManager, DaprClient daprClient, DocumentProcessing documentProcessing) =>
 {
+    Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", "d53cfbc6-6de7-43a1-a247-4bff27284a40");
     var blobUri = new Uri(documentProcessing.BlobUri);
     Console.WriteLine($"Processing document {documentProcessing.BlobName} and URI {blobUri}");
     var forms = await formRecognizerManager.GetFormsFromPdfAsync(blobUri);
@@ -29,7 +30,7 @@ app.MapPost("/documentprocess", [Topic("skcodemotion2023queue", "documentprocess
     foreach(var form in forms)
     {
         var paragraph = form.Lines.Select(y => y.Text).Aggregate((x, y) => $"{x} {y}");
-        daprClient.PublishEventAsync("skcodemotion2023queue", "knowledgeprocess", new KnowledgeProcessing { BlobName = documentProcessing.BlobName, DocumentFrame = paragraph, PageNumber = form.PageNumber }).Wait();
+        daprClient.PublishEventAsync("skragdemoqueue", "knowledgeprocess", new KnowledgeProcessing { BlobName = documentProcessing.BlobName, DocumentFrame = paragraph, PageNumber = form.PageNumber }).Wait();
     }
 });
 

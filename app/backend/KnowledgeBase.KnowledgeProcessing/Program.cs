@@ -18,14 +18,14 @@ app.UseEndpoints(endpoints => endpoints.MapSubscribeHandler());
 
 app.MapGet("/probe", () => new OkResult());
 
-app.MapPost("/knowledgeprocess", [Topic("skcodemotion2023queue", "knowledgeprocess")] async (DaprClient daprClient, KnowledgeProcessing knowledgeProcessing) => 
+app.MapPost("/knowledgeprocess", [Topic("skragdemoqueue", "knowledgeprocess")] async (DaprClient daprClient, KnowledgeProcessing knowledgeProcessing) => 
 {
     Console.WriteLine($"Processing document {knowledgeProcessing.DocumentFrame}");
-    var azureOpenAIserviceEndpoint = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureOpenAiServiceEndpoint")).Values.FirstOrDefault();
-    // var azureOpenAIServiceKey = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureOpenAiServiceKey")).Values.FirstOrDefault();
-    var azureSearchEndpoint = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureSearchServiceEndpoint")).Values.FirstOrDefault();
-    // var azureSearchKey = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureSearchServiceKey")).Values.FirstOrDefault();
-    var azureSearchKeyIndex = (await daprClient.GetSecretAsync("skcodemotion2023akv", "AzureSearchIndex")).Values.FirstOrDefault();
+    var azureOpenAIserviceEndpoint = (await daprClient.GetSecretAsync("skragdemoakv", "AzureOpenAiServiceEndpoint")).Values.FirstOrDefault();
+    // var azureOpenAIServiceKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureOpenAiServiceKey")).Values.FirstOrDefault();
+    var azureSearchEndpoint = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchServiceEndpoint")).Values.FirstOrDefault();
+    // var azureSearchKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchServiceKey")).Values.FirstOrDefault();
+    var azureSearchKeyIndex = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchIndex")).Values.FirstOrDefault();
 
     var semanticKernel = Kernel.Builder
         .WithAzureTextEmbeddingGenerationService(

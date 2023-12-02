@@ -18,7 +18,7 @@ public class FormRecognizerManager : IFormRecognizerManager
 
     public FormRecognizerManager(DaprClient daprClient)
     {
-        var formRecognizerEndpoint = daprClient.GetSecretAsync("skcodemotion2023akv", "FormRecognizerEndpoint").GetAwaiter().GetResult().Values.FirstOrDefault();
+        var formRecognizerEndpoint = daprClient.GetSecretAsync("skragdemoakv", "FormRecognizerEndpoint").GetAwaiter().GetResult().Values.FirstOrDefault();
         // var formRecognizerApiKey = daprClient.GetSecretAsync("skcodemotion2023akv", "FormRecognizerKey").GetAwaiter().GetResult().Values.FirstOrDefault();
         // _formRecognizerClient = new FormRecognizerClient(new Uri(formRecognizerEndpoint), new AzureKeyCredential(formRecognizerApiKey));
         _formRecognizerClient = new FormRecognizerClient(new Uri(formRecognizerEndpoint), new DefaultAzureCredential());
