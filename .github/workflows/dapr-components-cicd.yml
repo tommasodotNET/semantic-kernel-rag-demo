@@ -1,0 +1,36 @@
+name: Dapr Components CICD
+
+on:
+  push:
+    branches: 
+      [ main ]
+    paths:
+      - "dapr/components/**"
+
+  workflow_dispatch:
+
+env:
+  AKS_NAMESPACE: nos-poc
+
+jobs:
+  apply-dapr-components:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Merge AKS Context
+        run: |
+          az aks get-credentials --name ${{ secrets.AZURE_AKS_CLUSTER }} --resource-group ${{ secrets.AZURE_AKS_RESOURCE_GROUP }}
+
+      - name: Apply Dapr Components
+        run: |
+          cd ./dapr/
+          chmod +x "./apply-components.sh"
+          ./apply-components.sh
