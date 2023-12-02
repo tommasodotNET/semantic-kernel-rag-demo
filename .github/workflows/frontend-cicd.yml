@@ -1,0 +1,66 @@
+name: Order Acceptance Service CICD
+
+on:
+  push:
+    branches: 
+      [ main ]
+    paths:
+      - "src/frontend/KnowledgeBase.Frontend/**"
+      - "src/frontend/knowledgebasefrontendchart/**"
+
+  workflow_dispatch:
+
+env:
+  AKS_NAMESPACE: sk-rag-demo
+  SERVICE_NAME: knowledgebasefrontend
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: ACR Login
+        run: |
+          az acr login --name ${{ secrets.AZURE_CONTAINER_REGISTRY }}
+
+      - name: Build image
+        run: |
+          cd ./src
+          docker build -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.SERVICE_NAME }}:latest -f ./${{ env.SERVICE_NAME }}/*/Dockerfile .
+      - name: Push image to Azure Container Registry
+        run: |
+          docker push ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.SERVICE_NAME }}:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    
+    steps:
+      - name: Checkout to the branch
+        uses: actions/checkout@v2
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Merge AKS Context
+        run: |
+          az aks get-credentials --name ${{ secrets.AZURE_AKS_CLUSTER }} --resource-group ${{ secrets.AZURE_AKS_RESOURCE_GROUP }}
+
+      - name: Deploy Helm Chart
+        run: |
+          cd ./src
+          helm upgrade --install ${{ env.SERVICE_NAME }}-chart ./${{ env.SERVICE_NAME }}/${{ env.SERVICE_NAME }}chart --namespace ${{ env.AKS_NAMESPACE }}
+
+      - name: Update Deployment
+        run: |
+          kubectl rollout restart deployment ${{ env.SERVICE_NAME }} --namespace ${{ env.AKS_NAMESPACE }}
