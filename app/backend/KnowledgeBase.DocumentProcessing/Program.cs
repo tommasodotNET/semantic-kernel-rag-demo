@@ -22,7 +22,6 @@ app.MapGet("/probe", () => new OkResult());
 
 app.MapPost("/documentprocess", [Topic("skragdemoqueue", "documentprocess")] async (IFormRecognizerManager formRecognizerManager, DaprClient daprClient, DocumentProcessing documentProcessing) =>
 {
-    Environment.SetEnvironmentVariable("AZURE_CLIENT_ID", "d53cfbc6-6de7-43a1-a247-4bff27284a40");
     var blobUri = new Uri(documentProcessing.BlobUri);
     Console.WriteLine($"Processing document {documentProcessing.BlobName} and URI {blobUri}");
     var forms = await formRecognizerManager.GetFormsFromPdfAsync(blobUri);
