@@ -1,4 +1,4 @@
-name: Order Acceptance Service CICD
+name: Frontend CICD
 
 on:
   push:
