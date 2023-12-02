@@ -10,7 +10,7 @@ spec:
   metadata:
   - name: connectionString # Required
     secretKeyRef:
-      name: sb-processing-connectionstring
-      key:  sb-processing-connectionstring
+      name: ServiceBusConnectionString
+      key:  ServiceBusConnectionString
 auth:
   secretStore: skcodemotion2023akv
