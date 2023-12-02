@@ -35,7 +35,7 @@ jobs:
       - name: Build image
         run: |
           cd ./app
-          docker build -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.SERVICE_NAME }}:latest -f ./${{ env.SERVICE_PATH }}/*/Dockerfile .
+          docker build -t ${{ secrets.AZURE_CONTAINER_REGISTRY }}/${{ env.SERVICE_NAME }}:latest -f ./${{ env.SERVICE_PATH }}/KnowledgeBase.SearchKnowledge/Dockerfile .
       
       - name: Push image to Azure Container Registry
         run: |
