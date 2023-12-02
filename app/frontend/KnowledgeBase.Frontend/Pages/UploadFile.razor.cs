@@ -47,7 +47,7 @@ public class UploadFileBase : ComponentBase
             foreach (var file in e.GetMultipleFiles())
             {
                 await UploadFileAsync(file);
-                await daprClient.PublishEventAsync("skragdemoqueue", "documentprocess", new DocumentProcessing { BlobName = file.Name, BlobUri = $"{storageAccountEndpoint}/{storageAccountContainer}/{file.Name}" });
+                await daprClient.PublishEventAsync("skragdemoqueue", "documentprocess", new DocumentProcessing { BlobName = file.Name, BlobUri = $"{storageAccountEndpoint}{storageAccountContainer}/{file.Name}" });
             }
             uploadResult = 1;
         }
