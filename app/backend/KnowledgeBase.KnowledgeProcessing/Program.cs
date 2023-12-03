@@ -22,19 +22,19 @@ app.MapPost("/knowledgeprocess", [Topic("skragdemoqueue", "knowledgeprocess")] a
 {
     Console.WriteLine($"Processing document {knowledgeProcessing.DocumentFrame}");
     var azureOpenAIserviceEndpoint = (await daprClient.GetSecretAsync("skragdemoakv", "AzureOpenAiServiceEndpoint")).Values.FirstOrDefault();
-    // var azureOpenAIServiceKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureOpenAiServiceKey")).Values.FirstOrDefault();
+    var azureOpenAIServiceKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureOpenAiServiceKey")).Values.FirstOrDefault();
     var azureSearchEndpoint = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchServiceEndpoint")).Values.FirstOrDefault();
-    // var azureSearchKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchServiceKey")).Values.FirstOrDefault();
+    var azureSearchKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchServiceKey")).Values.FirstOrDefault();
     var azureSearchKeyIndex = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchIndex")).Values.FirstOrDefault();
 
     var semanticKernel = Kernel.Builder
         .WithAzureTextEmbeddingGenerationService(
             "text-embedding-ada-002",
             azureOpenAIserviceEndpoint,
-            new DefaultAzureCredential())
+            azureOpenAIServiceKey)
         .WithMemoryStorage(new AzureSearchMemoryStore(
             azureSearchEndpoint,
-            new DefaultAzureCredential()))
+            azureSearchKey))
         .Build();
 
     await semanticKernel.Memory.SaveInformationAsync(azureSearchKeyIndex, knowledgeProcessing.DocumentFrame, $"{knowledgeProcessing.BlobName}-{knowledgeProcessing.PageNumber}");

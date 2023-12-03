@@ -215,12 +215,20 @@ module keyVaultSecrets './core/security/keyvault-secrets.bicep' = {
         value: openAi.outputs.endpoint
       }
       {
+        name: 'AzureOpenAiServiceKey'
+        value: openAi.outputs.primaryAccessKey
+      }
+      {
         name: 'AzureSearchServiceEndpoint'
         value: searchService.outputs.endpoint
       }
       {
         name: 'AzureSearchIndex'
         value: searchIndexName
+      }
+      {
+        name: 'AzureSearchServiceKey'
+        value: searchService.outputs.primaryAccessKey
       }
       {
         name: 'FormRecognizerEndpoint'
@@ -322,6 +330,16 @@ module openAiRoleBackend 'core/security/role.bicep' = {
   }
 }
 
+module formRecognizerRoleBackend 'core/security/role.bicep' = {
+  scope: formRecognizerResourceGroup
+  name: 'formrecognizer-role-backend'
+  params: {
+    principalId: aks.outputs.clusterIdentity.objectId
+    roleDefinitionId: 'a97b65f3-24c7-4388-baec-2e87135dc908'
+    principalType: 'ServicePrincipal'
+  }
+}
+
 module storageRoleBackend 'core/security/role.bicep' = {
   scope: resourceGroup
   name: 'storage-role-backend'
@@ -338,6 +356,16 @@ module searchRoleBackend 'core/security/role.bicep' = {
   params: {
     principalId: aks.outputs.clusterIdentity.objectId
     roleDefinitionId: '1407120a-92aa-4202-b7e9-c0e197c71c8f'
+    principalType: 'ServicePrincipal'
+  }
+}
+
+module searchContribRoleBackend 'core/security/role.bicep' = {
+  scope: searchServiceResourceGroup
+  name: 'search-contrib-role-backend'
+  params: {
+    principalId: aks.outputs.clusterIdentity.objectId
+    roleDefinitionId: '8ebe5a00-799e-43f5-93ac-243d3dce84a7'
     principalType: 'ServicePrincipal'
   }
 }

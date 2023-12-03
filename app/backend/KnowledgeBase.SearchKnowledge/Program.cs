@@ -21,23 +21,23 @@ app.MapPost("/api/searchknowldge", async (DaprClient daprClient, SearchKnowledge
     Console.WriteLine($"Searching for prompt {searchKnowledge.Prompt}");
     var azureOpenAIGptDeployment = (await daprClient.GetSecretAsync("skragdemoakv", "AzureOpenAiChatGptDeployment")).Values.FirstOrDefault();
     var azureOpenAIserviceEndpoint = (await daprClient.GetSecretAsync("skragdemoakv", "AzureOpenAiServiceEndpoint")).Values.FirstOrDefault();
-    // var azureOpenAIServiceKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureOpenAiServiceKey")).Values.FirstOrDefault();
+    var azureOpenAIServiceKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureOpenAiServiceKey")).Values.FirstOrDefault();
     var azureSearchEndpoint = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchServiceEndpoint")).Values.FirstOrDefault();
-    // var azureSearchKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchServiceKey")).Values.FirstOrDefault();
+    var azureSearchKey = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchServiceKey")).Values.FirstOrDefault();
     var azureSearchKeyIndex = (await daprClient.GetSecretAsync("skragdemoakv", "AzureSearchIndex")).Values.FirstOrDefault();
 
     var semanticKernel = Kernel.Builder
         .WithAzureChatCompletionService(
             azureOpenAIGptDeployment,
             azureOpenAIserviceEndpoint,
-            new DefaultAzureCredential())
+            azureOpenAIServiceKey)
         .WithAzureTextEmbeddingGenerationService(
             "text-embedding-ada-002",
             azureOpenAIserviceEndpoint,
-            new DefaultAzureCredential())
+            azureOpenAIServiceKey)
         .WithMemoryStorage(new AzureSearchMemoryStore(
             azureSearchEndpoint,
-            new DefaultAzureCredential()))
+            azureSearchKey))
         .Build();
 
         var memories = semanticKernel.Memory.SearchAsync(azureSearchKeyIndex, searchKnowledge.Prompt, limit: 5);
