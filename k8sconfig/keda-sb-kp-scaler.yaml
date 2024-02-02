@@ -1,0 +1,26 @@
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: azure-servicebus-auth
+spec:
+  podIdentity:
+    provider: azure-workload
+    identityId: "d53cfbc6-6de7-43a1-a247-4bff27284a40"
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: azure-servicebus-scaledobject
+spec:
+  scaleTargetRef:
+    name: knowledge-processing
+  triggers:
+  - type: azure-servicebus
+    metadata:
+      topicName: knowledgeprocess
+      subscriptionName: knowledge-processing
+      namespace: sb-skragdemo
+      # Optional
+      messageCount: "5" # default 5
+    authenticationRef:
+        name: azure-servicebus-auth
