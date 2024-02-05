@@ -3,6 +3,7 @@ using Azure.AI.FormRecognizer;
 using Azure.AI.FormRecognizer.Models;
 using Azure.Identity;
 using Dapr.Client;
+using Microsoft.Identity.Client.AppConfig;
 
 namespace KnowledgeBase.DocumentProcessing.Services;
 
@@ -21,7 +22,7 @@ public class FormRecognizerManager : IFormRecognizerManager
         var formRecognizerEndpoint = daprClient.GetSecretAsync("skragdemoakv", "FormRecognizerEndpoint").GetAwaiter().GetResult().Values.FirstOrDefault();
         // var formRecognizerApiKey = daprClient.GetSecretAsync("skcodemotion2023akv", "FormRecognizerKey").GetAwaiter().GetResult().Values.FirstOrDefault();
         // _formRecognizerClient = new FormRecognizerClient(new Uri(formRecognizerEndpoint), new AzureKeyCredential(formRecognizerApiKey));
-        _formRecognizerClient = new FormRecognizerClient(new Uri(formRecognizerEndpoint), new DefaultAzureCredential());
+        _formRecognizerClient = new FormRecognizerClient(new Uri(formRecognizerEndpoint), new DefaultAzureCredential(new DefaultAzureCredentialOptions { ManagedIdentityClientId = "d53cfbc6-6de7-43a1-a247-4bff27284a40" }));
     }
 
     public async Task<FormPageCollection> GetFormsFromPdfAsync(Uri blobUri)
