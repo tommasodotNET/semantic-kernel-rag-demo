@@ -484,3 +484,5 @@ env/
 venv/
 myvenv/
 ENV/
+
+**/scripts/deploy-aca.sh
